@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+#define BUF_SIZE 1024
 
 void error_handling(char *message)
 {
@@ -25,8 +26,10 @@ int main(int argc, char *argv[])
 	struct sockaddr_in clnt_addr;
 
 	socklen_t clnt_addr_size;
+	int str_len = 0;
+	int i = 0;
 
-	char message[] = "hello world!";
+	char message[BUF_SIZE] = {0};
 
 	if (argc != 2)
 	{
@@ -59,22 +62,31 @@ int main(int argc, char *argv[])
 
 	clnt_addr_size = sizeof(clnt_addr);
 
-	clnt_sockfd = accept(serv_sockfd, (struct sockaddr *)&clnt_addr, &clnt_addr_size);
-	if (clnt_sockfd == -1)
+	for (i = 0; i < 5; i++)
 	{
-		error_handling("accept() error");
+		clnt_sockfd = accept(serv_sockfd, (struct sockaddr *)&clnt_addr, &clnt_addr_size);
+		if (clnt_sockfd == -1)
+		{
+			error_handling("accept() error");
+		}
+		else
+		{
+			printf("Connected client %d\n",	i+1);
+		}
+
+		while ((str_len = read(clnt_sockfd, message, sizeof(BUF_SIZE))) != 0)
+		{
+			ret = write(clnt_sockfd, message, str_len);
+			if (ret == -1)
+			{
+				error_handling("write() error");
+			}
+			printf("write: ret = %d\n", ret);
+		}
+
+		close(clnt_sockfd);
 	}
-	printf("accept: clnt_sockfd OK\n");
 
-	ret = write(clnt_sockfd, message, sizeof(message));
-	if (ret == -1)
-	{
-		error_handling("write() error");
-	}
-
-	printf("write: ret = %d\n", ret);
-
-	close(clnt_sockfd);
 	close(serv_sockfd);
 
 	return 0;
