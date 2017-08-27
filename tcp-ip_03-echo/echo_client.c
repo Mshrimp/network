@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 		printf("Please input message(Q to quit):\n");
 		fgets(message, BUF_SIZE, stdin);
 
-		if ((strcmp(message, "q\n")) || (strcmp(message, "Q\n")))
+		if (!(strcmp(message, "q\n")) || !(strcmp(message, "Q\n")))
 		{
 			break;
 		}
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
 		while (read_len < str_len)
 		{
-			read_cnt = read(clnt_sockfd, message, BUF_SIZE - 1);
+			read_cnt = read(clnt_sockfd, &message[read_len], BUF_SIZE - 1);
 			if (read_len == -1)
 			{
 				error_handling("read() error");

@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 
 		if (!(strcmp(message, "q\n")) || !(strcmp(message, "Q\n")))
 		{
+			printf("Quit message send!\n");
 			break;
 		}
 
@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
 			printf("write: str_len = %d\n", str_len);
 		}
 
+		memset(message, 0, BUF_SIZE);
 		while (read_len < str_len)
 		{
 			read_cnt = read(clnt_sockfd, &message[read_len], BUF_SIZE - 1);
@@ -85,7 +87,9 @@ int main(int argc, char *argv[])
 			read_len += read_cnt;
 			printf("read: read_cnt = %d\n", read_cnt);
 		}
+		printf("read_len = %d\n", read_len);
 		message[read_len] = '\0';
+		printf("Message from server: %s\n", message);
 	}
 
     /*
@@ -101,7 +105,7 @@ int main(int argc, char *argv[])
 	 *printf("read: str_len = %d\n", str_len);
      */
 
-	printf("Message from server: %s\n", message);
+	printf("Message echo success, message from server: %s\n", message);
 
 	close(clnt_sockfd);
 
