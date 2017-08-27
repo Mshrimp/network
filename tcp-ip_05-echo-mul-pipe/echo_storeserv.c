@@ -165,6 +165,7 @@ int main(int argc, char *argv[])
 				{
 					error_handling("Child: write() error");
 				}
+				memset(message, 0, BUF_SIZE);
 			}
 
 			close(clnt_sockfd);
