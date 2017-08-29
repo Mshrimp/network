@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUF_SIZE 30
+#define BUF_SIZE 50
 #define TTL 64
 
 #define error_handling(fmt, args...)	\
@@ -62,33 +62,6 @@ int main(int argc, char *argv[])
 	}
 
 	fclose(fp);
-
-/*
- *    while (1)
- *    {
- *        printf("Please input buf(Q to quit):\n");
- *        memset(buf, 0, BUF_SIZE);
- *        fgets(buf, BUF_SIZE, stdin);
- *
- *        if (!(strcmp(buf, "q\n")) || !(strcmp(buf, "Q\n")))
- *        {
- *            break;
- *        }
- *        
- *        ret = sendto(send_sockfd, buf, strlen(buf), 0, (struct sockaddr *)&mul_addr, sizeof(mul_addr));
- *        if (ret == -1)
- *        {
- *            error_handling("sendto() error");
- *        }
- *
- *        mul_addr_sz = sizeof(from_addr);
- *
- *        str_len = recvfrom(send_sockfd, buf, BUF_SIZE, 0, (struct sockaddr *)&from_addr, &mul_addr_sz);
- *        buf[str_len] = '\0';
- *        
- *        printf("Message from server: %s\n", buf);
- *    }
- */
 
 	close(send_sockfd);
 
