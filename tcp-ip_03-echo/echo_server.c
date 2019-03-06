@@ -12,7 +12,7 @@
 
 void error_handling(char *message)
 {
-	printf("\033[1;31m%s\033[0m", message);
+	printf("\033[1;31m%s\033[0m\n", message);
 }
 
 int main(int argc, char *argv[])
@@ -76,14 +76,17 @@ int main(int argc, char *argv[])
 
 		while ((str_len = read(clnt_sockfd, message, sizeof(BUF_SIZE))) != 0)
 		{
+			//printf("Read: %s\n", message);
 			ret = write(clnt_sockfd, message, str_len);
 			if (ret == -1)
 			{
 				error_handling("write() error");
 			}
-			printf("write: ret = %d\n", ret);
+			//printf("Write: %s, ret = %d\n", message, ret);
+			printf("Write: ret = %d\n", ret);
 		}
 
+		printf("Close client %d\n", i+1);
 		close(clnt_sockfd);
 	}
 

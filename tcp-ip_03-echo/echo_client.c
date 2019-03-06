@@ -13,7 +13,7 @@
 
 void error_handling(char *message)
 {
-	printf("\033[1;31m%s\033[0m", message);
+	printf("\033[1;31m%s\033[0m\n", message);
 }
 
 int main(int argc, char *argv[])
@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
 			printf("read: read_cnt = %d\n", read_cnt);
 		}
 		message[read_len] = '\0';
+		printf("Message from server: %s\n", message);
 	}
 
     /*
@@ -100,8 +101,6 @@ int main(int argc, char *argv[])
 	 *}
 	 *printf("read: str_len = %d\n", str_len);
      */
-
-	printf("Message from server: %s\n", message);
 
 	close(clnt_sockfd);
 
