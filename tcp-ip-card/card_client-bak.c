@@ -18,26 +18,11 @@ char name[NAME_SIZE] = "Default";
 #define error_handling(fmt, args...)	\
 	printf("\033[1;31m"fmt"\033[0m(function: %s, line: %d)\n", ## args, __func__, __LINE__);
 
-int send_message_to_server(int sockfd, void *data, int len)
-{
-	int str_len = 0;
-
-	str_len = write(clnt_sockfd, send_buf, strlen(send_buf) + 1);
-	if (str_len < 0) {
-		error_handling("write() error");	
-		return -1;
-	} else {
-		printf("write: str_len = %d\n", str_len);
-	}
-
-	return str_len;
-}
-
 void *pthread_send_message(void *arg)
 {
 	int clnt_sockfd = *((int *)arg);
 	char send_buf[BUF_SIZE + NAME_SIZE] = { 0 };
-	int len = 0;
+	int str_len = 0;
 
 	while (1)
 	{
@@ -55,18 +40,18 @@ void *pthread_send_message(void *arg)
 		memset(send_buf, 0, sizeof(send_buf));
 		sprintf(send_buf, "%s: %s", name, message);
 
-		len = strlen(send_buf) + 1;
-		send_message_to_server(clnt_sockfd, (void *)send_buf, len);
+		str_len = write(clnt_sockfd, send_buf, strlen(send_buf) + 1);
+		if (str_len == -1)
+		{
+			error_handling("write() error");	
+		}
+		else
+		{
+			printf("write: str_len = %d\n", str_len);
+		}
 	}
 
 	return NULL;
-}
-
-int message_recv_process(char *msg, int len)
-{
-
-
-	return 0;
 }
 
 void *pthread_recv_message(void *arg)
@@ -87,8 +72,6 @@ void *pthread_recv_message(void *arg)
 		recv_buf[str_len] = '\0';
 
 		printf("recv: %s\n", recv_buf);
-
-		message_recv_process(recv_buf, str_len);
 	}
 
 	return NULL;

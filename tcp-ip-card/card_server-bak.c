@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 100
 #define MAX_CLNT_NUM 256
 
 #define error_handling(fmt, args...)	\
@@ -20,7 +20,7 @@ int clnt_sockfds[MAX_CLNT_NUM] = { 0 };
 
 pthread_mutex_t mutex;
 
-void send_message_to_all_client(char *message, int len)
+void send_message(char *message, int len)
 {
 	int str_len = 0;
 	int i = 0;
@@ -40,82 +40,21 @@ void send_message_to_all_client(char *message, int len)
 	pthread_mutex_unlock(&mutex);
 }
 
-int send_string_to_client(int clnt_sockfd, char *string, int len)
+
+void *handling_client(void *arg)
 {
+	int clnt_sockfd = *((int *)arg);
 	int str_len = 0;
-
-	pthread_mutex_lock(&mutex);
-
-	str_len = write(clnt_sockfd, string, len);
-	if (str_len != len)
-	{
-		error_handling("Client: %d write() error, str_len: %d\n", clnt_sockfd, str_len);
-		return str_len;
-	}
-	printf("Send to client: %d, string: %s\n", clnt_sockfd, string);
-
-	pthread_mutex_unlock(&mutex);
-}
-
-int send_data_to_client(int clnt_sockfd, void *data, int len)
-{
-	int str_len = 0;
-
-	pthread_mutex_lock(&mutex);
-
-	str_len = write(clnt_sockfd, data, len);
-	if (str_len != len)
-	{
-		error_handling("Client: %d write() error, str_len: %d\n", clnt_sockfd, str_len);
-		return -1;
-	}
-	printf("Send to client: %d, data: %d\n", clnt_sockfd, *data);
-
-	pthread_mutex_unlock(&mutex);
-
-	return str_len;
-}
-
-#define RESP_POSITIVE_CHECK		1
-#define RESP_NEGATIVE_CHECK		0
-int send_response_to_client(int clnt_sockfd, int answer)
-{
-	int ret = 0;
-
-	ret = send_data_to_client(clnt_sockfd, &answer, sizeof(answer));
-	if (ret < 0) {
-		error_handling("Response %d to client: %d error, ret: %d\n", answer, clnt_sockfd, ret);
-		return -1;
-	}
-
-	return ret;
-}
-
-#define MESSAGE_IS_DATA		1
-#define	MESSAGE_IS_TALK		0
-int message_check(char *msg, int len)
-{
-	
-
-	return 0;
-}
-
-int message_process(char *msg, int len)
-{
-	int check = 0;
-
-	check = message_check(msg, len);
-	if (MESSAGE_IS_DATA == check) {
-	}
-
-	send_message_to_all_client(message, str_len);
-
-	return 0;
-}
-
-int close_socket_fd(int clnt_sockfd)
-{
 	int i = 0;
+
+	char message[BUF_SIZE] = { 0 };
+
+	while((str_len = read(clnt_sockfd, message, BUF_SIZE)) > 0)
+	{
+		printf("Recv client %d message: %s\n", clnt_sockfd, message);
+		send_message(message, str_len);
+		memset(message, 0, sizeof(message));
+	}
 
 	pthread_mutex_lock(&mutex);
 
@@ -136,27 +75,6 @@ int close_socket_fd(int clnt_sockfd)
 
 	printf("Client %d close!\n", clnt_sockfd);
 	close(clnt_sockfd);
-
-	return 0;
-}
-
-void *handling_client(void *arg)
-{
-	int clnt_sockfd = *((int *)arg);
-	int str_len = 0;
-	int i = 0;
-
-	char message[BUF_SIZE] = { 0 };
-
-	while((str_len = read(clnt_sockfd, message, BUF_SIZE)) > 0)
-	{
-		printf("Recv client %d message: %s\n", clnt_sockfd, message);
-
-		message_process(message, str_len);
-		memset(message, 0, sizeof(message));
-	}
-
-	close_socket_fd(clnt_sockfd);
 
 	return NULL;
 }
